@@ -1,0 +1,18 @@
+name: Deploy to main & run scraper
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  scrape-docs:
+    # needs: await-deploy => wait for your application to be deployed in another job
+    runs-on: ubuntu-20.04
+    name: scrape and push content on Meilisearch instance
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run docs-scraper
+        env:
+          CRAWLER_CONFIG: '{"start_urls":["https://www.meilisearch.com/docs"],"meilisearch_url":"${{ secrets.MEILISEARCH_HOST_URL }}","meilisearch_api_key":"${{ secrets.MEILISEARCH_API_KEY }}","meilisearch_index_uid":"doc-test","strategy":"docssearch"}'
+        run: |
+          docker run --env CRAWLER_CONFIG=$CRAWLER_CONFIG getmeili/scrapix
